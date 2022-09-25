@@ -133,6 +133,7 @@ const Registry = () => {
         </div>
         <div className="flex w-1/2">
           <MonthSelect
+            styles=""
             title="Month"
             dates={dates}
             handleChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -140,6 +141,7 @@ const Registry = () => {
             }}
           />
           <DaySelect
+            styles=""
             title="Day"
             days={days}
             handleChange={(e: ChangeEvent<HTMLSelectElement>) => {
@@ -156,6 +158,7 @@ const Registry = () => {
         </div>
 
         <StateSelect
+          styles=""
           title="Choose a State"
           states={states}
           handleChange={(e: ChangeEvent<HTMLSelectElement>) => {
