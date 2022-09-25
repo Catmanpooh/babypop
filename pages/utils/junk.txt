@@ -1,0 +1,69 @@
+const tableButton = async () => {
+    const tableland = await connect({
+      signer,
+      network: "testnet",
+      chain: "polygon-mumbai",
+    });
+
+    // const { name } = await tableland.create(
+    //   `id integer primary key, first_name text not null, last_name text not null, location text, wallet_address text not null unique, user_name text, image text, arrival_date text not null , adventure text, social_profile text`, // Table schema definition
+    //   {
+    //     prefix: `babypop_user`, // Optional `prefix` used to define a human-readable string
+    //   }
+    // );
+
+    // console.log(name);
+
+    // const name = 'babypop_user_80001_2156'
+
+    // const name = 'babypop_user_80001_2157';
+
+    // const babypop_user_table = "babypop_user_80001_2160";
+
+    // const product_name = await tableland.create(
+    //   `id integer primary key, name text not null, image text, quantity integer not null, price real not null, purchased integer not null default '0', wallet_address text not null`, // Table schema definition
+    //   {
+    //     prefix: `babypop_product`, // Optional `prefix` used to define a human-readable string
+    //   }
+    // );
+
+    // console.log(product_name.name);
+  };
+
+  const babypop_user_table = "babypop_user_80001_2160";
+  const babypop_product_table = "babypop_product_80001_2161";
+
+  const writeTable = async () => {
+    const tableland = await connect({
+      signer,
+      network: "testnet",
+      chain: "polygon-mumbai",
+    });
+
+    const writeRes = await tableland.write(
+      `INSERT INTO ${name} (id, name) VALUES (0, 'Bobby Tables');`
+    );
+
+    console.log(writeRes);
+  };
+
+  const readTable = async () => {
+    const tableland = await connect({
+      signer,
+      network: "testnet",
+      chain: "polygon-mumbai",
+    });
+
+    const readRes = await tableland.read(
+      `SELECT * FROM ${babypop_user_table};`
+    );
+    const readRes1 = await tableland.read(
+      `SELECT * FROM ${babypop_product_table};`
+    );
+
+    console.log(readRes, readRes1);
+  };
+
+<button onClick={tableButton}>Tableland</button>
+<button onClick={writeTable}>Write</button>
+<button onClick={readTable}>Read</button>

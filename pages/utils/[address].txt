@@ -1,0 +1,275 @@
+import { useRouter } from "next/router";
+import { ChangeEvent, useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import { client, search, getProfile } from "../../api/profiles";
+import { readTable } from "../../api/tableLand";
+import { siteWallet } from "../../api/siteWallet";
+import dates from "../../utils/dates.json";
+
+interface ProfilesData {
+  profile: {
+    id: string;
+    name: string;
+    bio: string;
+    attributes: {
+      displayType: string;
+      traitType: string;
+      key: string;
+      value: string;
+    }[];
+    metadata: string;
+  };
+}
+
+interface Search {
+  items: {
+    id: string;
+    name: string;
+    bio: string;
+    attributes: {
+      displayType: string;
+      traitType: string;
+      key: string;
+      value: string;
+    }[];
+    metadata: string;
+  }[];
+}
+
+interface ReadQueryResult<R extends Rows = Array<any>> {
+  columns: Columns;
+  rows: R;
+}
+
+// For context
+type Columns = Array<{ name: string }>;
+type Rows = Array<string | number | boolean>;
+
+type Dates = {
+  name: string;
+  short: string;
+  number: number;
+  days: number;
+};
+
+const babypop_user_table = process.env.BABYPOPUSERTABLE;
+
+const UserProfile = () => {
+  const signer = siteWallet();
+  const router = useRouter();
+  const { address, isConnected } = useAccount();
+  const sqlQuerySearch = router.query;
+  const [userProfile, setUserProfile] = useState<ProfilesData>();
+  const [userSearch, setUserSearch] = useState<Search>();
+  const [userTableProfile, setUserTableProfile] = useState<ReadQueryResult>();
+  const [userSearchTerm, setUserSearchTerm] = useState<string | undefined>();
+
+  useEffect(() => {
+    readTableUserId();
+  }, []);
+
+  console.log(sqlQuerySearch.term);
+
+  const readTableUserId = async () => {
+    let sql_query: string;
+    
+    switch (sqlQuerySearch?.number) {
+      case "0":
+        setUserSearchTerm(address);
+        sql_query = `SELECT * FROM ${babypop_user_table} WHERE wallet_address = '${address}';`;
+      case "1":
+        let first_name = sqlQuerySearch?.first_name;
+        let last_name = sqlQuerySearch?.last_name;
+        console.log(first_name, last_name);
+        setUserSearchTerm(`${first_name} ${last_name}`);
+        sql_query = `SELECT * FROM ${babypop_user_table} WHERE  first_name = '${first_name}' AND last_name = '${last_name}';`;
+      case "2":
+        let user_name = sqlQuerySearch?.user_name;
+        setUserSearchTerm(`${user_name}`);
+        sql_query = `SELECT * FROM ${babypop_user_table} WHERE  user_name = '${user_name}';`;
+      case "3":
+        let location = sqlQuerySearch?.location;
+        setUserSearchTerm(`${location}`);
+        sql_query = `SELECT * FROM ${babypop_user_table} WHERE  location = '${location}';`;
+      default:
+        sql_query = `SELECT * FROM ${babypop_user_table}`;
+    }
+
+    try {
+      const userInfo = await readTable({ sql_query, signer });
+      console.log(userInfo);
+      if (userInfo.rows.length !== 0) {
+        setUserTableProfile(userInfo);
+      } else {
+        setUserTableProfile(undefined);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const fetchProfilesFromSite = async () => {
+    try {
+      const res = await client
+        .query(getProfile, {
+          request: {
+            profileId: Profile,
+          },
+        })
+        .toPromise();
+      console.log(res.data);
+      setUserProfile(res.data);
+    } catch (err) {
+      console.log({ err });
+    }
+  };
+  const fetchSearch = async () => {
+    try {
+      const res = await client
+        .query(search, {
+          request: {
+            query: Profile,
+            type: "PROFILE",
+            limit: 10,
+          },
+        })
+        .toPromise();
+      console.log(res.data);
+      setUserSearch(res.data);
+    } catch (err) {
+      console.log({ err });
+    }
+  };
+
+  if (typeof Profile === "string" && Profile.substr(0, 2) === "0x") {
+    fetchProfilesFromSite();
+  } else {
+    fetchSearch();
+  }
+
+  const PageNotFound = () => {
+    return (
+      <div>
+        <h1>
+          User {userSearchTerm !== undefined ? "" : userSearchTerm} was not
+          found!
+        </h1>
+      </div>
+    );
+  };
+
+  const EditUserProfile = () => {
+    const fullName = `${userTableProfile?.rows[0][1]} ${userTableProfile?.rows[0][2]}`;
+    const arrivalDate = userTableProfile?.rows[0][7].split("-");
+    const month = dates.find((date: Dates) => date.number == arrivalDate[0]);
+    const imageSrc = userTableProfile?.rows[0][6];
+
+    return (
+      <div className="flex flex-col justify-between items-center tracking-wide">
+        <div className="flex flex-col justify-between items-center">
+          {imageSrc !== null ? (
+            <img
+              className="rounded-full border border-gray-100 shadow-sm w-32 h-32 my-4"
+              src={imageSrc}
+              alt="User Profile Image"
+            />
+          ) : null}
+          <p className="my-4 text-2xl">
+            {" "}
+            <span className="font-semibold">
+              {fullName.toUpperCase()}'s
+            </span>{" "}
+            Baby Registry
+          </p>
+          <p className="my-2 text-md">
+            Arrival Date
+            <span className=" mx-2 font-semibold underline decoration-1	">
+              {month?.name} {arrivalDate[1]}, {arrivalDate[2]}
+            </span>
+          </p>
+        </div>
+        <div className="flex flex-col justify-center items-center">
+          <button
+            className="mt-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+            onClick={() => router.push(`/user/profile/edit/${address}`)}
+          >
+            Update Profile
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const ViewUserProfile = () => {
+    const fullName = `${userTableProfile?.rows[0][1]} ${userTableProfile?.rows[0][2]}`;
+    const arrivalDate = userTableProfile?.rows[0][7].split("-");
+    const month = dates.find((date: Dates) => date.number == arrivalDate[0]);
+    const imageSrc = userTableProfile?.rows[0][6];
+    const userName = userTableProfile?.rows[0][5];
+    console.log(userName);
+
+    const x = [1, 2, 3, 4];
+    return (
+      <div className="flex flex-col justify-between items-center tracking-wide">
+        <div className="flex flex-col justify-between items-center">
+          {imageSrc !== null ? (
+            <img
+              className="rounded-full border border-gray-100 shadow-sm w-32 h-32 my-4"
+              src={imageSrc}
+              alt="User Profile Image"
+            />
+          ) : null}
+          <p className="my-4 text-2xl">
+            {" "}
+            <span className="font-semibold">
+              {fullName.toUpperCase()}'s
+            </span>{" "}
+            Baby Registry
+          </p>
+          <p className="my-2 text-md">
+            Arrival Date
+            <span className=" mx-2 font-semibold underline decoration-1	">
+              {month?.name} {arrivalDate[1]}, {arrivalDate[2]}
+            </span>
+          </p>
+        </div>
+        {userName !== null ? (
+          <div className="flex no-scrollbar overflow-x-scroll w-3/4 my-8">
+            {x.map((element) => {
+              return (
+                <div className="w-32 h-40 mx-4 rounded shadow-lg">
+                  <p className="">{element}</p>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
+  const UserProfile = () => {
+    return (
+      <div className="">
+        {address === userTableProfile?.rows[0][4] ? (
+          <EditUserProfile />
+        ) : (
+          <ViewUserProfile />
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="container h-full w-screen flex justify-center items-center">
+      {userTableProfile === null || userTableProfile === undefined ? (
+        <PageNotFound />
+      ) : (
+        <UserProfile />
+      )}
+    </div>
+  );
+};
+
+export default UserProfile;
+
