@@ -98,7 +98,6 @@ const Registry = () => {
         "Error happened creating your account please try again or contact system admin"
       );
     }
-
   };
 
   return (
@@ -164,9 +163,10 @@ const Registry = () => {
           }}
         />
         <div className="flex justify-between w-1/3">
-          {adventureTypes.map((title) => {
+          {adventureTypes.map((title, index) => {
             return (
               <button
+                key={index}
                 value={title}
                 className="w-32 h-32 rounded overflow-hidden shadow-lg"
                 onClick={() => {

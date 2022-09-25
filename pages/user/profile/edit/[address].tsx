@@ -15,6 +15,8 @@ import { UserInput } from "../../../../components/UserInput";
 import { fetchProfilesFromSite } from "../../../api/findProfileUsingHandle";
 import { useAsset, useCreateAsset, useAssetMetrics } from "@livepeer/react";
 import { createUserPublications } from "../../../api/createPublicationLens";
+import { VideoPlayer } from "@livepeer/react";
+
 
 interface ProfilesData {
   profile: {
@@ -64,6 +66,15 @@ type Dates = {
 
 const babypop_user_table = process.env.BABYPOPUSERTABLE;
 const babypop_user_product = process.env.BABYPOPPRODUCTTABLE;
+
+const videoPlayBackIds = [
+  "2458o4ozd9elid3d",
+  "ba6al1rok8n79s8n",
+  "237bueg4xn2b5rxd",
+  "a9754dye8668jmgz",
+  "ecc92o2ohnfsbqbv",
+  "4fa9d87dnc90dclw"
+];
 
 const EditUserProfile = () => {
   const signer = siteWallet();
@@ -202,7 +213,6 @@ const EditUserProfile = () => {
           />
         ) : null}
         <p className="my-4 text-2xl">
-          {" "}
           <span className="font-semibold">{fullName.toUpperCase()}'s</span> Baby
           Registry
         </p>
@@ -216,11 +226,18 @@ const EditUserProfile = () => {
         </p>
         {socialAccount !== null ? (
           <div className="flex no-scrollbar overflow-x-scroll w-3/4 my-8">
-            {x.map((element) => {
+            {videoPlayBackIds.map((playId, index) => {
               return (
-                <div className="w-32 h-40 mx-4 rounded shadow-lg">
-                  <p className="">{element}</p>
-                </div>
+                <div key={index} className="mx-4">
+                <VideoPlayer
+                  playbackId={playId}
+                  muted
+                  controls
+                  autoPlay={false}
+                  width={350}
+                  height={450}
+                />
+              </div>
               );
             })}
           </div>
@@ -228,9 +245,6 @@ const EditUserProfile = () => {
       </div>
     );
   };
-
-  console.log(assetOne);
-  console.log(video);
 
   return (
     <div className="container h-full w-screen flex justify-center items-center">

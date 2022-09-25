@@ -5,6 +5,7 @@ import { client, search, getProfile } from "../../api/profiles";
 import { readTable } from "../../api/tableLand";
 import { siteWallet } from "../../api/siteWallet";
 import dates from "../../utils/dates.json";
+import { VideoPlayer } from "@livepeer/react";
 
 interface ProfilesData {
   profile: {
@@ -40,6 +41,14 @@ type Dates = {
 const babypop_user_table = process.env.BABYPOPUSERTABLE;
 const babypop_user_product = process.env.BABYPOPPRODUCTTABLE;
 
+const videoPlayBackIds = [
+  "2458o4ozd9elid3d",
+  "ba6al1rok8n79s8n",
+  "237bueg4xn2b5rxd",
+  "a9754dye8668jmgz",
+  "ecc92o2ohnfsbqbv",
+  "4fa9d87dnc90dclw",
+];
 
 const UserProfile = () => {
   const signer = siteWallet();
@@ -80,7 +89,7 @@ const UserProfile = () => {
         sql_query = `SELECT * FROM ${babypop_user_product} WHERE wallet_address = '${address}';`;
         const userProducts = await readTable({ sql_query, signer });
         console.log(userProducts);
-        
+
         if (userProducts.rows.length !== 0) {
           setUserTableProduct(userProducts);
         } else {
@@ -122,10 +131,7 @@ const UserProfile = () => {
             />
           ) : null}
           <p className="my-4 text-2xl">
-            {" "}
-            <span className="font-semibold">
-              {fullName.toUpperCase()}'s
-            </span>{" "}
+            <span className="font-semibold">{fullName.toUpperCase()}'s</span>
             Baby Registry
           </p>
           <p className="my-2 text-md">
@@ -166,10 +172,7 @@ const UserProfile = () => {
             />
           ) : null}
           <p className="my-4 text-2xl">
-            {" "}
-            <span className="font-semibold">
-              {fullName.toUpperCase()}'s
-            </span>{" "}
+            <span className="font-semibold">{fullName.toUpperCase()}'s</span>
             Baby Registry
           </p>
           <p className="my-2 text-md">
@@ -181,10 +184,17 @@ const UserProfile = () => {
         </div>
         {userName !== null ? (
           <div className="flex no-scrollbar overflow-x-scroll w-3/4 my-8">
-            {x.map((element) => {
+            {videoPlayBackIds?.map((playId, index) => {
               return (
-                <div className="w-32 h-40 mx-4 rounded shadow-lg">
-                  <p className="">{element}</p>
+                <div key={index} className="mx-4">
+                  <VideoPlayer
+                    playbackId={playId}
+                    muted
+                    controls
+                    autoPlay={false}
+                    width={350}
+                    height={450}
+                  />
                 </div>
               );
             })}
@@ -217,7 +227,5 @@ const UserProfile = () => {
     </div>
   );
 };
-
-
 
 export default UserProfile;

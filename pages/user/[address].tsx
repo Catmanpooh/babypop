@@ -76,7 +76,7 @@ const videoPlayBackIds = [
   "237bueg4xn2b5rxd",
   "a9754dye8668jmgz",
   "ecc92o2ohnfsbqbv",
-  "4fa9d87dnc90dclw"
+  "4fa9d87dnc90dclw",
 ];
 
 const AddressUserProfile = () => {
@@ -102,7 +102,7 @@ const AddressUserProfile = () => {
     // return () => clearInterval(intervalId);
   }, []);
 
-//   console.log(playIds);
+  //   console.log(playIds);
   const fetchLivePeer = () => {
     fetch("https://livepeer.studio/api/asset", {
       method: "get",
@@ -250,10 +250,7 @@ const AddressUserProfile = () => {
             </button>
           ) : null}
           <p className="my-4 text-2xl">
-            {" "}
-            <span className="font-semibold">
-              {fullName.toUpperCase()}'s
-            </span>{" "}
+            <span className="font-semibold">{fullName.toUpperCase()}'s</span>
             Baby Registry
           </p>
           <p className="my-2 text-md">

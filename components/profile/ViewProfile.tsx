@@ -1,5 +1,6 @@
 import { NextRouter } from "next/router";
 import dates from "../../pages/utils/dates.json";
+import { VideoPlayer } from "@livepeer/react";
 
 interface ReadQueryResult<R extends Rows = Array<any>> {
   columns: Columns;
@@ -16,6 +17,15 @@ type Dates = {
   number: number;
   days: number;
 };
+
+const videoPlayBackIds = [
+  "2458o4ozd9elid3d",
+  "ba6al1rok8n79s8n",
+  "237bueg4xn2b5rxd",
+  "a9754dye8668jmgz",
+  "ecc92o2ohnfsbqbv",
+  "4fa9d87dnc90dclw",
+];
 
 export const ViewUserProfile = (
   userTableProfile: ReadQueryResult,
@@ -106,10 +116,17 @@ export const ViewUserProfile = (
       </div>
       {userName !== null ? (
         <div className="flex no-scrollbar overflow-x-scroll w-3/4 my-8">
-          {x.map((element) => {
+          {videoPlayBackIds?.map((playId, index) => {
             return (
-              <div className="w-32 h-40 mx-4 rounded shadow-lg">
-                <p className="">{element}</p>
+              <div key={index} className="mx-4">
+                <VideoPlayer
+                  playbackId={playId}
+                  muted
+                  controls
+                  autoPlay={false}
+                  width={350}
+                  height={450}
+                />
               </div>
             );
           })}
